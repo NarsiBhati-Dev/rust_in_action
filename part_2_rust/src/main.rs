@@ -1,15 +1,30 @@
-// lifetimes
+// traits
 
-fn main() {
-    let longest_str;
-    let str1 = String::from("small");
-    {
-        let str2 = String::from("longer");
-        longest_str = longest(str1, str2);
-    }
-    println!("{}", longest_str);
+trait Summary {
+    fn summarise(&self) -> String;
 }
 
-fn longest(a: String, b: String) -> String {
-    if a.len() > b.len() { a } else { b }
+struct User {
+    name: String,
+    age: u32,
+}
+
+impl Summary for User {
+    fn summarise(&self) -> String {
+        return format!("The Name is {} and the age is {}", self.name, self.age);
+    }
+}
+
+fn notify(u: impl Summary) {
+    println!("{}", u.summarise())
+}
+
+fn main() {
+    let user = User {
+        name: String::from("nasri"),
+        age: 24,
+    };
+
+    println!("{}", user.summarise());
+    notify(user);
 }
