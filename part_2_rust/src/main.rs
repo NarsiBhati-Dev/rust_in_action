@@ -1,30 +1,25 @@
-// traits
-
-trait Summary {
-    fn summarise(&self) -> String;
-}
-
-struct User {
-    name: String,
-    age: u32,
-}
-
-impl Summary for User {
-    fn summarise(&self) -> String {
-        return format!("The Name is {} and the age is {}", self.name, self.age);
-    }
-}
-
-fn notify(u: impl Summary) {
-    println!("{}", u.summarise())
-}
+use std::{sync::mpsc, thread};
 
 fn main() {
-    let user = User {
-        name: String::from("nasri"),
-        age: 24,
-    };
+    let (tx, rx) = mpsc::channel();
 
-    println!("{}", user.summarise());
-    notify(user);
+    for i in 1..10 {
+        let producer = tx.clone();
+        thread::spawn(move || {
+            let mut ans: u64 = 0;
+            for j in 0..100000000 {
+                ans = ans + (i * 100000000 + j);
+            }
+            producer.send(ans).unwrap();
+        });
+    }
+
+    drop(tx);
+
+    let mut ans: u64 = 0;
+    for val in rx {
+        ans = ans + val;
+        println!("found value {val}");
+    }
+    println!("Ans is {ans}");
 }
